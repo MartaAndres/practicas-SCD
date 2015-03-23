@@ -1,9 +1,31 @@
-default: all
+###############################################################################
+# Makefile
+###############################################################################
 
-all: extra_calculoPi
+SHELL = /bin/bash
 
-extra_calculoPi: extra_calculoPi.cpp
-	g++ -o $@ $^ -pthread
+SRC = $(wildcard *.c *.cc *.cpp)
+EXE = $(basename $(SRC))
+ATT = $(EXE:=.att)
+
+CFLAGS = -lm -Ofast -Wall -Wl,--no-as-needed
+CXXFLAGS = $(CFLAGS) -std=c++0x
+LDFLAGS = -lm -lrt -lpthread
+
+###############################################################################
+
+default: $(EXE)
+
+all: default $(ATT)
 
 clean:
-	rm -f *.o extra_calculoPi
+	$(RM) -fv $(ATT) $(EXE) core.* *~
+
+%.att: %
+	objdump -C -D $< > $@
+
+###############################################################################
+
+.NOEXPORT:
+
+###############################################################################
