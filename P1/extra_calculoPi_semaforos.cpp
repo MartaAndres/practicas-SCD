@@ -1,5 +1,6 @@
 #include <iostream>
 #include <pthread.h>
+#include <semaphore.h>
 #include <cstdlib>
 
 using namespace std;
@@ -8,8 +9,10 @@ using namespace std;
 long nthreads = 4;
 // numero de partes del intervalo
 long partes;
-// vector para almacenar las sumas parciales de cada hebra
-double *sumas;
+// suma de todas las integrales
+double suma;
+// semaforo de exclusion mutua
+sem_t mutex;
 
 // la funcion a integrar
 double f (double x) {
@@ -30,8 +33,9 @@ void* suma_parcial(void* indice) {
       sumap += f(i*1.0/partes);
    }
 
-   // almacenar la suma parcial en el vector
-   sumas[nhebra] = sumap/partes;
+   sem_wait(&mutex);
+   suma += sumap/partes;
+   sem_post(&mutex);
 
    return NULL;
 }
@@ -48,23 +52,24 @@ int main(int argc, char* argv[]) {
          partes = 1;
    }
 
-   sumas = new double[nthreads];
-
    // redondeo del numero de puntos hacia arriba
    partes = ((partes+nthreads-1)/nthreads)*nthreads;
+
+   // crear el semaforo de exclusion mutua
+   sem_init(&mutex, 0, 1);
 
    // lanzar las hebras
    pthread_t hebras[nthreads];
    for (long i = 0; i < nthreads; i++) {
-      pthread_create(hebras+i,NULL,suma_parcial,(void*)i);
+      pthread_create(hebras+i, NULL, suma_parcial, (void*) i);
    }
 
-   // juntar todas las sumas
-   double suma = 0;
+   // esperar a que finalizen todas las hebras
    for (long i = 0; i < nthreads; i++) {
-      pthread_join(hebras[i],NULL);
-      suma += sumas[i];
+      pthread_join(hebras[i], NULL);
    }
+
+   sem_destroy(&mutex);
 
    // modificar la precision al imprimir el float
    cout.precision(20);
