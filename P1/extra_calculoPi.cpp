@@ -19,6 +19,7 @@ double f (double x) {
 // la funcion para las sumas parciales
 void* suma_parcial(void* indice) {
    long nhebra = (long) indice;
+
    // comienzo y fin del bucle
    long ini = nhebra * partes/nthreads;
    long fin = ini + partes/nthreads;
@@ -31,6 +32,8 @@ void* suma_parcial(void* indice) {
 
    // almacenar la suma parcial en el vector
    sumas[nhebra] = sumap;
+
+   return NULL;
 }
 
 int main(int argc, char* argv[]) {
