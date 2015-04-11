@@ -19,7 +19,7 @@ default: $(EXE)
 all: default $(ATT)
 
 clean:
-	$(RM) -fv $(ATT) $(EXE) core.* *~
+	$(RM) -v $(ATT) $(EXE) core.* *~
 
 %.att: %
 	objdump -C -D $< > $@
