@@ -32,12 +32,10 @@ void * productor(void *) {
       sem_wait(&mutex);
       while ( (pesc+1)%tam_vector == plec) {
 	 sem_post(&mutex);
+
 	 sem_wait(&mutex);
       }
-      sem_post(&mutex);
-
       // escribir en el buffer
-      sem_wait(&mutex);
       buffer[pesc] = dato;
       pesc = (pesc+1) % tam_vector;
       sem_post(&mutex);
@@ -52,12 +50,10 @@ void * consumidor(void *) {
       sem_wait(&mutex);
       while (plec == pesc) {
 	 sem_post(&mutex);
+
 	 sem_wait(&mutex);
       }
-      sem_post(&mutex);
-
       // leer del buffer
-      sem_wait(&mutex);
       int dato = buffer[plec];
       plec = (plec+1) % tam_vector;
       sem_post(&mutex);
